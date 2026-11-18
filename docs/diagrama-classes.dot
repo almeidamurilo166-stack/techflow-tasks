@@ -1,0 +1,106 @@
+digraph G {
+  graph [rankdir=TB, fontname="Helvetica", nodesep=0.6, ranksep=0.8, bgcolor="white", pad=0.3,
+         label="Diagrama de Classes — TechFlow Tasks (v1.1)", labelloc=t, fontsize=18];
+  node  [shape=plaintext, fontname="Helvetica", fontsize=11];
+  edge  [fontname="Helvetica", fontsize=10, color="#334155"];
+
+  app [label=<
+  <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#eef2ff" COLOR="#334155">
+    <TR><TD><I>«módulo»</I></TD></TR>
+    <TR><TD><B>app</B> (Flask)</TD></TR>
+    <HR/>
+    <TR><TD ALIGN="LEFT">+ create_app(config: dict): Flask</TD></TR>
+    <TR><TD ALIGN="LEFT">+ register_api(app, repo)</TD></TR>
+    <TR><TD ALIGN="LEFT">+ register_web(app, repo)</TD></TR>
+  </TABLE>>];
+
+  repo [label=<
+  <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#f0fdf4" COLOR="#334155">
+    <TR><TD><B>TaskRepository</B></TD></TR>
+    <HR/>
+    <TR><TD ALIGN="LEFT">- db_path: str</TD></TR>
+    <HR/>
+    <TR><TD ALIGN="LEFT">+ create(data: dict): Task</TD></TR>
+    <TR><TD ALIGN="LEFT">+ get(task_id: int): Task</TD></TR>
+    <TR><TD ALIGN="LEFT">+ list(status, priority): List[Task]</TD></TR>
+    <TR><TD ALIGN="LEFT">+ update(task_id: int, data: dict): Task</TD></TR>
+    <TR><TD ALIGN="LEFT">+ delete(task_id: int): bool</TD></TR>
+    <TR><TD ALIGN="LEFT">+ count_by_status(): dict</TD></TR>
+    <TR><TD ALIGN="LEFT">+ count_critical_pending(): int</TD></TR>
+    <TR><TD ALIGN="LEFT">- _migrate(conn)</TD></TR>
+  </TABLE>>];
+
+  validacao [label=<
+  <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#fefce8" COLOR="#334155">
+    <TR><TD><I>«módulo»</I></TD></TR>
+    <TR><TD><B>models</B> (validação)</TD></TR>
+    <HR/>
+    <TR><TD ALIGN="LEFT">+ validate_task_data(data: dict,</TD></TR>
+    <TR><TD ALIGN="LEFT">      partial: bool): dict</TD></TR>
+  </TABLE>>];
+
+  task [label=<
+  <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#ffffff" COLOR="#334155">
+    <TR><TD><B>Task</B></TD></TR>
+    <HR/>
+    <TR><TD ALIGN="LEFT">+ id: int</TD></TR>
+    <TR><TD ALIGN="LEFT">+ title: str</TD></TR>
+    <TR><TD ALIGN="LEFT">+ description: str</TD></TR>
+    <TR><TD ALIGN="LEFT">+ status: Status</TD></TR>
+    <TR><TD ALIGN="LEFT">+ priority: Prioridade</TD></TR>
+    <TR><TD ALIGN="LEFT">+ created_at: str</TD></TR>
+    <TR><TD ALIGN="LEFT">+ updated_at: str</TD></TR>
+    <HR/>
+    <TR><TD ALIGN="LEFT">+ status_label(): str</TD></TR>
+    <TR><TD ALIGN="LEFT">+ priority_label(): str</TD></TR>
+    <TR><TD ALIGN="LEFT">+ is_critical_pending(): bool</TD></TR>
+    <TR><TD ALIGN="LEFT">+ to_dict(): dict</TD></TR>
+  </TABLE>>];
+
+  verr [label=<
+  <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#fef2f2" COLOR="#334155">
+    <TR><TD><B>ValidationError</B></TD></TR>
+    <HR/>
+    <TR><TD ALIGN="LEFT">+ errors: dict</TD></TR>
+  </TABLE>>];
+
+  valueerror [label=<
+  <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#f8fafc" COLOR="#94a3b8">
+    <TR><TD><FONT COLOR="#64748b">ValueError</FONT></TD></TR>
+    <TR><TD><FONT COLOR="#64748b" POINT-SIZE="9">(Python)</FONT></TD></TR>
+  </TABLE>>];
+
+  status [label=<
+  <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#f1f5f9" COLOR="#334155">
+    <TR><TD><I>«enumeração»</I></TD></TR>
+    <TR><TD><B>Status</B></TD></TR>
+    <HR/>
+    <TR><TD ALIGN="LEFT">todo  (A Fazer)</TD></TR>
+    <TR><TD ALIGN="LEFT">doing (Em Progresso)</TD></TR>
+    <TR><TD ALIGN="LEFT">done  (Concluído)</TD></TR>
+  </TABLE>>];
+
+  prio [label=<
+  <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#fff1f2" COLOR="#be123c">
+    <TR><TD><I>«enumeração»</I></TD></TR>
+    <TR><TD><B>Prioridade</B></TD></TR>
+    <TR><TD><FONT COLOR="#be123c" POINT-SIZE="9">nova na v1.1</FONT></TD></TR>
+    <HR/>
+    <TR><TD ALIGN="LEFT">low (Baixa)</TD></TR>
+    <TR><TD ALIGN="LEFT">medium (Média)</TD></TR>
+    <TR><TD ALIGN="LEFT">high (Alta)</TD></TR>
+    <TR><TD ALIGN="LEFT">critical (Crítica)</TD></TR>
+  </TABLE>>];
+
+  { rank=same; repo; validacao; }
+  { rank=same; task; verr; }
+  { rank=same; status; prio; valueerror; }
+
+  app -> repo [arrowhead=diamond, dir=back, arrowtail=diamond, label="  1   usa  ", taillabel="", headlabel="1"];
+  app -> validacao [style=dashed, arrowhead=vee, label="  «usa»"];
+  repo -> task [arrowhead=vee, label="  gerencia", headlabel="0..*  ", taillabel="1"];
+  validacao -> verr [style=dashed, arrowhead=vee, label="  «lança»"];
+  verr -> valueerror [arrowhead=empty];
+  task -> status [arrowhead=vee, headlabel="1 "];
+  task -> prio [arrowhead=vee, headlabel="1 "];
+}
