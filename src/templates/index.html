@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+
+{# Painel: quantidade de tarefas por status (monitoramento do fluxo) #}
+<section class="stats">
+  {% for status, label in status_labels.items() %}
+    <a class="stat stat-{{ status }} {% if status_filter == status %}active{% endif %}"
+       href="{{ url_for('index', status=status, priority=priority_filter) }}">
+      <strong>{{ counts[status] }}</strong>
+      <span>{{ label }}</span>
+    </a>
+  {% endfor %}
+  <a class="stat stat-critical {% if priority_filter == 'critical' %}active{% endif %}"
+     href="{{ url_for('index', priority='critical') }}">
+    <strong>{{ critical_pending }}</strong>
+    <span>Críticas pendentes</span>
+  </a>
+</section>
+
+{# Filtro por prioridade (mudança de escopo v1.1) #}
+<nav class="filters">
+  <span>Prioridade:</span>
+  <a class="chip {% if not priority_filter %}active{% endif %}"
+     href="{{ url_for('index', status=status_filter) }}">Todas</a>
+  {% for priority, label in priority_labels.items() %}
+    <a class="chip chip-{{ priority }} {% if priority_filter == priority %}active{% endif %}"
+       href="{{ url_for('index', status=status_filter, priority=priority) }}">{{ label }}</a>
+  {% endfor %}
+  {% if status_filter or priority_filter %}
+    <a class="clear-filter" href="{{ url_for('index') }}">Limpar filtros</a>
+  {% endif %}
+</nav>
+
+{# Formulário de nova tarefa #}
+<section class="card form-card">
+  <h2>Nova tarefa</h2>
+  <form method="post" action="{{ url_for('create_task') }}">
+    <label>Título
+      <input name="title" value="{{ form.get('title', '') }}" maxlength="100" required>
+    </label>
+    {% if errors.title %}<p class="error">{{ errors.title }}</p>{% endif %}
+
+    <label>Descrição
+      <textarea name="description" maxlength="500" rows="2">{{ form.get('description', '') }}</textarea>
+    </label>
+    {% if errors.description %}<p class="error">{{ errors.description }}</p>{% endif %}
+
+    <label>Prioridade
+      <select name="priority">
+        {% for priority, label in priority_labels.items() %}
+          <option value="{{ priority }}"
+            {% if form.get('priority', 'medium') == priority %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% if errors.priority %}<p class="error">{{ errors.priority }}</p>{% endif %}
+
+    <button type="submit">Adicionar</button>
+  </form>
+</section>
+
+{# Quadro Kanban #}
+<section class="board">
+  {% for status, tasks in columns.items() %}
+    <div class="column column-{{ status }}">
+      <h3>{{ status_labels[status] }} <span class="badge">{{ tasks|length }}</span></h3>
+      {% for task in tasks %}
+        <article class="task {% if task.is_critical_pending %}task-critical{% endif %}">
+          <span class="tag tag-{{ task.priority }}">{{ task.priority_label }}</span>
+          <h4>{{ task.title }}</h4>
+          {% if task.description %}<p>{{ task.description }}</p>{% endif %}
+          <div class="actions">
+            {% for target, target_label in status_labels.items() if target != task.status %}
+              <form method="post" action="{{ url_for('move_task', task_id=task.id) }}">
+                <input type="hidden" name="status" value="{{ target }}">
+                <button class="small" type="submit">→ {{ target_label }}</button>
+              </form>
+            {% endfor %}
+            <a class="small link" href="{{ url_for('edit_task', task_id=task.id) }}">Editar</a>
+            <form method="post" action="{{ url_for('delete_task', task_id=task.id) }}">
+              <button class="small danger" type="submit">Excluir</button>
+            </form>
+          </div>
+        </article>
+      {% else %}
+        <p class="empty">Nenhuma tarefa.</p>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

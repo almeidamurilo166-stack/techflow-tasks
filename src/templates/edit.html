@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Editar tarefa · TechFlow Tasks{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <h2>Editar tarefa #{{ task.id }}</h2>
+  <form method="post">
+    <label>Título
+      <input name="title" value="{{ form.get('title', '') }}" maxlength="100" required>
+    </label>
+    {% if errors.title %}<p class="error">{{ errors.title }}</p>{% endif %}
+
+    <label>Descrição
+      <textarea name="description" maxlength="500" rows="3">{{ form.get('description', '') }}</textarea>
+    </label>
+    {% if errors.description %}<p class="error">{{ errors.description }}</p>{% endif %}
+
+    <label>Status
+      <select name="status">
+        {% for status, label in status_labels.items() %}
+          <option value="{{ status }}" {% if form.get('status') == status %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+    {% if errors.status %}<p class="error">{{ errors.status }}</p>{% endif %}
+
+    <label>Prioridade
+      <select name="priority">
+        {% for priority, label in priority_labels.items() %}
+          <option value="{{ priority }}" {% if form.get('priority') == priority %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+    {% if errors.priority %}<p class="error">{{ errors.priority }}</p>{% endif %}
+
+    <div class="form-actions">
+      <button type="submit">Salvar</button>
+      <a class="link" href="{{ url_for('index') }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
