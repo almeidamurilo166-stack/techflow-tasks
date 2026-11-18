@@ -175,4 +175,4 @@ cabeçalho"* foi devolvido ao *backlog* para abrir espaço na sprint.
 
 - [Diagramas UML](docs/img/) — casos de uso e classes
 - [Quadro Kanban](docs/kanban.md) — cards, sprints e evolução da mudança de escopo
-- [Roteiro do vídeo pitch](docs/roteiro-pitch.md)
+
